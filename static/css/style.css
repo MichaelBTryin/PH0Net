@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 body {
     margin: 0;
     height: 100vh;
@@ -16,3 +17,23 @@ body {
     padding: 20px;
     border-radius: 10px;
 }
+=======
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    font-family: Arial, sans-serif;
+    background: url('BackGround.png') no-repeat center center fixed;
+    background-size: cover;
+}
+
+.content {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-radius: 10px;
+}
+>>>>>>> 3b16d908e768edad3dacf063c4b4d6ce47c1f320
