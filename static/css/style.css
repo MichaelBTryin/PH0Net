@@ -39,6 +39,41 @@ body {
 
 }
 
+/* Navigation Bar */
+.navbar {
+    display: flex;
+    justify-content: center; /* Centers the links */
+    background: rgba(0, 0, 0, 0.8); /* Slightly transparent dark background */
+    padding: 10px 0;
+    margin-top: 10px; /* Spacing below the title */
+}
+
+/* Remove list styling */
+.navbar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 20px; /* Space between links */
+}
+
+/* Style links */
+.navbar ul li a {
+    text-decoration: none;
+    color: white; /* White text */
+    font-weight: bold;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: 0.3s ease;
+}
+
+/* Hover effect */
+.navbar ul li a:hover {
+    background: red; /* Highlight on hover */
+    color: black;
+}
+
+
 .content_row {
     display: flex;
     flex-direction: row; /* Aligns children side by side */
