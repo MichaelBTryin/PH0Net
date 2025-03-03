@@ -6,13 +6,70 @@ body {
     padding: 0;
     height: 100vh;
     display: flex;
+    flex-direction: column;
+    gap: 30px;
+    min-height: 100vh;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     text-align: center;
 }
 
 /* Center the title and text */
+.content_logo {
+    display: flex;
+    flex-direction: row;
+    align-items: center; /* Center content horizontally */
+    justify-content: center; /* Center content vertically */
+    gap: 20px; /* Space between each div */
+    color: white;
+    font-family: Arial, sans-serif;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+
+}
+
+.content_title {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center content horizontally */
+    justify-content: center; /* Center content vertically */
+    gap: 20px; /* Space between each div */
+    color: white;
+    font-family: Arial, sans-serif;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+
+}
+
+.content_row {
+    display: flex;
+    flex-direction: row; /* Aligns children side by side */
+    align-items: center; /* Centers content vertically */
+    justify-content: flex-start; /* Centers everything horizontally */
+    gap: 30px; /* Adds spacing between logo and title */
+}
+
+.content_column {
+    display: flex;
+    flex-direction: column; /* Aligns children side by side */
+    align-items: center; /* Centers content vertically */
+    justify-content: center; /* Centers everything horizontally */
+    gap: 30px; /* Adds spacing between logo and title */
+}
 .content {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center content horizontally */
+    justify-content: center; /* Center content vertically */
+    gap: 20px; /* Space between each div */
+    color: white;
+    font-family: Arial, sans-serif;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+}
+.content_PH0-CD {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center content horizontally */
+    justify-content: center; /* Center content vertically */
+    gap: 20px; /* Space between each div */
     color: white;
     font-family: Arial, sans-serif;
     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
