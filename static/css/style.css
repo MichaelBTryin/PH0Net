@@ -1,20 +1,19 @@
-
+/* Apply the background image */
 body {
+    background: url('../images/BackGround.png') no-repeat center center fixed;
+    background-size: cover;
     margin: 0;
+    padding: 0;
     height: 100vh;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     text-align: center;
+}
+
+/* Center the title and text */
+.content {
     color: white;
     font-family: Arial, sans-serif;
-    background: url('BackGround.png') no-repeat center center fixed;
-    background-size: cover;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
 }
-
-.content {
-    background: rgba(0, 0, 0, 0.5);
-    padding: 20px;
-    border-radius: 10px;
-}
-
