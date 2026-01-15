@@ -1,79 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>PH0Net | Welcome</title>
-        <link rel="stylesheet" href="static/css/style.css?v=3">
-    </head>
-    <body>
-        <div class="content_column">
-            <div class="content_row">
-                <div class="content_logo">
-                    <img src="static/images/PH0LogoV7 Clear MAIN.png" alt="PH0 Main Logo" width="150">
-                    <div class="content_title">
-                        <h1>Welcome to PH0Net</h1>
-                    </div>
-                    <img src="static/images/PH0Michael_V3_Transparent.png" alt="MichaelBTryin Logo" width="150">
-                </div>
-            </div>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PH0Net | Contact</title>
 
-            <!-- Navigation Bar -->
-        <nav class="navbar">
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="projects.html">Projects</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="contact.html">Contact</a></li>
-            </ul>
-        </nav>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
+  <link rel="stylesheet" href="static/css/cyberpunk.css">
+</head>
+<body>
+  <!-- NAVIGATION -->
+  <header class="site-header">
+    <nav class="navbar">
+      <a href="index.html" class="brand-link">
+        <img src="static/images/PH0LogoV7 Clear MAIN.png" alt="PH0Net" class="brand-logo">
+        <span class="brand-text">PH0NET</span>
+      </a>
 
-            <div class="content">
-            <p>Email : MBT@PH0Net.com (Assuming I set that up right 😅🤞)</p>
-                <p>__________</p>
-            </div>
-        </div>
-    <!--
-        <div class="content_PH0-CD">
-            <div class="content_row">
-                <div class="content_column">
-                    <div class="content_row">
-                        <img src="static/images/PH0Michael_V3_Transparent.png" alt="PH0 MBT Logo" width="150">
-                        <h2>MichaelBTryin Platforms & Links:</h2>
-                    </div>
-                    <div class="content_???">
-                        <p>Twitch.TV/MichaelBTryin:</p>
-                        <a href="https://www.twitch.tv/michaelbtryin" target="_blank" rel="noopener noreferrer">
-                            <img src="static/images/PH0-MBT_Twitch_Link_Button.png" alt="MBT Main Twitch Link Img" width="150">
-                        </a>
-                        <p>----------</p>
-                        <p>youtube.com/@michaelbtryin:</p>
-                        <a href="https://www.youtube.com/@michaelbtryin" target="_blank" rel="noopener noreferrer">
-                            <img src="static/images/PH0-MBT_Youtube_Link_Button.png" alt="MBT Main Youtube Link Img" width="150">
-                        </a>
-                    </div>
-                    <p>__________</p>
-                </div>
-            </div>
-        </div>
-    -->
-    <!--
-            <div class="content_PH0-CD">
-                <div class="content_row">
-                <img src="static/images/PH0_CD_LogoV9 Clear.png" alt="PH0 CD Logo" width="150">
-                <h2>PH0Craft: Dominion Modpack</h2>
-            </div>
-                <div class="content_???">
-                    <p>My latest Minecraft Modpack, curated for Multiplayer in mind, with something for everyone!</p>
-                    <p>Get it here:</p>
-                    <a href="https://www.curseforge.com/minecraft/modpacks/ph0craft-dominion" target="_blank" rel="noopener noreferrer">
-                        <img src="static/images/PH0-CD_Link_Button.png" alt="PH0Craft: Dominion Modpack Link Img" width="150">
-                    </a>
-                </div>
-                <p>__________</p>
-            </div>
-        </div>
-    -->
-    </body>
+      <input type="checkbox" id="mobile-menu" class="mobile-menu-toggle">
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="nav-link">Home</a></li>
+        <li><a href="projects.html" class="nav-link">Projects</a></li>
+        <li><a href="about.html" class="nav-link">About</a></li>
+        <li><a href="contact.html" class="nav-link active">Contact</a></li>
+      </ul>
+
+      <label for="mobile-menu" class="mobile-toggle">
+        <span class="hamburger"></span>
+      </label>
+
+      <div class="nav-social">
+        <a href="https://www.twitch.tv/michaelbtryin" class="social-link" target="_blank" rel="noopener noreferrer">
+          <svg class="social-icon" viewBox="0 0 24 24">
+            <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
+          </svg>
+        </a>
+        <a href="https://www.youtube.com/@michaelbtryin" class="social-link" target="_blank" rel="noopener noreferrer">
+          <svg class="social-icon" viewBox="0 0 24 24">
+            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+          </svg>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- PAGE HEADER -->
+  <section class="page-header">
+    <h1 class="page-title">Contact</h1>
+    <p class="page-subtitle">Get in touch</p>
+  </section>
+
+  <!-- CONTACT SECTION -->
+  <section class="contact-section">
+    <div class="contact-content">
+      <p class="section-subtitle">Have a question or want to collaborate?</p>
+      <p class="contact-email">
+        <a href="mailto:MBT@PH0Net.com">MBT@PH0Net.com</a>
+      </p>
+      <p class="section-subtitle" style="margin-top: 2rem;">Or find me on socials:</p>
+      <div class="social-links" style="justify-content: center; margin-top: 1rem;">
+        <a href="https://www.twitch.tv/michaelbtryin" class="social-btn" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24">
+            <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
+          </svg>
+          Twitch
+        </a>
+        <a href="https://www.youtube.com/@michaelbtryin" class="social-btn" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24">
+            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+          </svg>
+          YouTube
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <img src="static/images/PH0LogoV7 Clear MAIN.png" alt="PH0Net" class="footer-logo">
+        <p class="footer-text">
+          &copy; 2025 PH0Net | Created by <a href="about.html">MichaelBTryin</a>
+        </p>
+      </div>
+      <div class="footer-links">
+        <a href="index.html" class="footer-link">Home</a>
+        <a href="projects.html" class="footer-link">Projects</a>
+        <a href="about.html" class="footer-link">About</a>
+        <a href="contact.html" class="footer-link">Contact</a>
+      </div>
+    </div>
+  </footer>
+</body>
 </html>
