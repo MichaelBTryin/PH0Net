@@ -1,0 +1,32 @@
+Canonical pages: include demo.html - Idk what it is tho… 
+Nexus Social URL: https://Social.PH0.Nexus
+MerithAI URL: https://Merith.PH0.Nexus
+Twitch URL: https://www.twitch.tv/michaelbtryin
+Kick URL: https://kick.com/michaelbtryin
+Rumble URL: https://rumble.com/user/MichaelBTryin
+YouTube URL: https://www.youtube.com/@michaelbtryin
+Discord URL: https://discord.gg/6wkZsx2xxa
+CurseForge URL:
+https://www.curseforge.com/minecraft/modpacks/ph0craft-dominion
+
+MerithControl will be here:
+https://legacy.curseforge.com/hytale/mods/merithcontrol
+
+And the new Vanilla Client I put together:
+https://www.curseforge.com/minecraft/modpacks/ph0-vanillacraft
+
+Contact email (display + mailto): Already up-to date
+
+
+
+Any text updates (hero/about/projects/contact):
+
+
+
+AI Progress so far:
+As I work on my AI Framework and surrounding Suite of tools, I guess that I should share my progress here.
+
+Since October 2024, I started to look into AI, after not even trying it out up to that point. I currently have an AI Framwork that uses 'mlabonne/gemma-3-4b-it-abliterated-GGUF:Q4_K_M' LLM, with LuxTTS, Whisper STT and a Chroma based RAG Memory using 'BGE-base' for the embeddings. I am working on getting Gemma4 ablitarated, and further improving the framework so that it can not only serve as a sutable Livestream Co-Host, while also allowing for easy configuration and selection of various AI Personalities 
+
+
+Admin@PH0.Nexus
