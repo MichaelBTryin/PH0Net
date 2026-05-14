@@ -29,4 +29,4 @@ As I work on my AI Framework and surrounding Suite of tools, I guess that I shou
 Since October 2024, I started to look into AI, after not even trying it out up to that point. I currently have an AI Framwork that uses 'mlabonne/gemma-3-4b-it-abliterated-GGUF:Q4_K_M' LLM, with LuxTTS, Whisper STT and a Chroma based RAG Memory using 'BGE-base' for the embeddings. I am working on getting Gemma4 ablitarated, and further improving the framework so that it can not only serve as a sutable Livestream Co-Host, while also allowing for easy configuration and selection of various AI Personalities 
 
 
-Admin@PH0.Nexus
+MichaelBTryin@proton.me
