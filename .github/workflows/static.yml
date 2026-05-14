@@ -5,6 +5,8 @@ on:
   # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
+  schedule:
+    - cron: "*/30 * * * *"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -31,6 +33,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Build blog from source (with cache fallback)
+        run: python scripts/build_blog.py
+      - name: Validate link manifest usage
+        run: python scripts/validate_links.py
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
