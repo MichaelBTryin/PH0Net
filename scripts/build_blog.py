@@ -301,7 +301,7 @@ def render_blog_index(posts, source: str, last_synced: str):
 
 def cleanup_stale_post_dirs(active_paths: set[str]) -> None:
     BLOG_DIR.mkdir(parents=True, exist_ok=True)
-    protected = {"data"}
+    protected = {"data", "."}
     for index_file in BLOG_DIR.rglob("index.html"):
         rel = index_file.parent.relative_to(BLOG_DIR).as_posix()
         if rel in protected:
@@ -451,4 +451,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
