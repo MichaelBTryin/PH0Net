@@ -270,6 +270,7 @@
       );
       opacity: 0;
       transition: opacity 0.3s ease;
+      pointer-events: none;
     }
 
     .project-card:hover {
@@ -282,6 +283,32 @@
 
     .project-card:hover::before {
       opacity: 1;
+    }
+
+    .projects-grid > .project-card {
+      cursor: pointer;
+    }
+
+    .projects-grid > .project-card > :not(.card-link) {
+      pointer-events: none;
+    }
+
+    .projects-grid > .project-card .card-link {
+      position: static;
+      pointer-events: auto;
+    }
+
+    .projects-grid > .project-card .card-link::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+
+    .projects-grid > .project-card .card-link span,
+    .projects-grid > .project-card .card-link svg {
+      position: relative;
+      z-index: 2;
     }
 
     .card-header {
@@ -387,6 +414,7 @@
       border-radius: 9px;
       z-index: -1;
       opacity: 0.5;
+      pointer-events: none;
     }
 
     .featured-badge {
