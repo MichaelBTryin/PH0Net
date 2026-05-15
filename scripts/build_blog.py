@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
+import base64
 import datetime as dt
 import email.utils
 import html
 import json
 import re
+import secrets
+import shutil
 import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -17,6 +20,7 @@ BLOG_PUBLIC_BASE = "https://blog.ph0.nexus"
 RSS_URL = "https://blog.ph0.nexus/rss.xml"
 API_URL = "https://blog.ph0.nexus/api/posts.json"
 MAX_POSTS = 25
+YOUTUBE_ID_LENGTH = 11
 
 
 def normalize_public_url(url: str) -> str:
@@ -61,6 +65,30 @@ def slugify(text: str) -> str:
     return base or "post"
 
 
+def _is_public_post_id(value: str) -> bool:
+    return bool(value) and len(value) == YOUTUBE_ID_LENGTH and re.fullmatch(r"[A-Za-z0-9_-]{11}", value)
+
+
+def _generate_public_id(taken: set[str]) -> str:
+    for _ in range(128):
+        raw = secrets.token_bytes(8)
+        candidate = base64.urlsafe_b64encode(raw).decode("ascii").rstrip("=")[:YOUTUBE_ID_LENGTH]
+        if len(candidate) == YOUTUBE_ID_LENGTH and candidate not in taken:
+            return candidate
+    raise RuntimeError("Could not allocate a unique public post id")
+
+
+def public_post_id(post: dict) -> str:
+    """Stable mirror path segment (YouTube-style id from Nexus API)."""
+    value = str(post.get("id", "")).strip()
+    if _is_public_post_id(value):
+        return value
+    legacy_slug = str(post.get("slug", "")).strip()
+    if legacy_slug:
+        return slugify(legacy_slug)
+    return slugify(str(post.get("title", "post")))
+
+
 def fetch_text(url: str, timeout: int = 15) -> str:
     req = urllib.request.Request(url, headers={"User-Agent": "PH0NetBlogSync/1.0"})
     with urllib.request.urlopen(req, timeout=timeout) as resp:  # nosec - trusted URL
@@ -93,6 +121,7 @@ def parse_rss(xml_text: str):
         slug = slugify(title)
         posts.append(
             {
+                "id": "",
                 "title": title,
                 "source_url": link,
                 "summary": summary,
@@ -113,12 +142,14 @@ def parse_api(json_text: str):
     for item in items[:MAX_POSTS]:
         title = str(item.get("title", "Untitled")).strip()
         slug = str(item.get("slug") or slugify(title))
+        post_id = str(item.get("id") or "").strip()
         source_url = str(item.get("url") or item.get("source_url") or "").strip()
         summary = strip_html(str(item.get("summary") or item.get("excerpt") or ""))[:240]
         content_html = str(item.get("content_html") or item.get("content") or "")
         published_at = str(item.get("published_at") or item.get("published") or dt.datetime.now(dt.timezone.utc).isoformat())
         posts.append(
             {
+                "id": post_id,
                 "title": title,
                 "source_url": source_url,
                 "summary": summary,
@@ -169,7 +200,7 @@ def render_blog_index(posts, source: str, last_synced: str):
         <h3 class="card-title">{html.escape(post['title'])}</h3>
         <p class="card-description">{html.escape(post.get('summary', ''))}</p>
         <p class="section-subtitle">Published: {fmt_date(post.get('published_at', ''))}</p>
-        <a class="card-link" href="./{html.escape(post['slug'])}/index.html">
+        <a class="card-link" href="./{html.escape(public_post_id(post))}/index.html">
           <span>Read Post</span>
           <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
@@ -239,10 +270,21 @@ def render_blog_index(posts, source: str, last_synced: str):
     (BLOG_DIR / "index.html").write_text(html_text, encoding="utf-8")
 
 
+def cleanup_stale_post_dirs(active_ids: set[str]) -> None:
+    if not BLOG_DIR.exists():
+        return
+    for child in BLOG_DIR.iterdir():
+        if not child.is_dir() or child.name == "data":
+            continue
+        if child.name not in active_ids:
+            shutil.rmtree(child, ignore_errors=True)
+
+
 def render_post(post):
-    post_dir = BLOG_DIR / post["slug"]
+    segment = public_post_id(post)
+    post_dir = BLOG_DIR / segment
     post_dir.mkdir(parents=True, exist_ok=True)
-    canonical = f"{CANONICAL_BASE}/{post['slug']}/"
+    canonical = f"{CANONICAL_BASE}/{segment}/"
     body_html = post.get("content_html") or f"<p>{html.escape(post.get('summary', ''))}</p>"
     extra_links = []
     for link in post.get("links", []):
@@ -336,9 +378,17 @@ def main():
             posts = load_cached_posts()
             source = "cache"
 
-    dedup = {}
+    taken_ids: set[str] = set()
+    dedup: dict[str, dict] = {}
     for post in posts:
-        dedup[post["slug"]] = normalize_post(post)
+        normalized = normalize_post(post)
+        segment = public_post_id(normalized)
+        if not _is_public_post_id(str(normalized.get("id", "")).strip()):
+            if not segment or segment in taken_ids:
+                segment = _generate_public_id(taken_ids)
+            normalized["id"] = segment
+        dedup[segment] = normalized
+        taken_ids.add(segment)
     posts = list(dedup.values())[:MAX_POSTS]
 
     if source in {"api", "rss"} and posts:
@@ -346,8 +396,10 @@ def main():
 
     last_synced = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
     render_blog_index(posts, source, last_synced)
+    active_ids = {public_post_id(post) for post in posts}
     for post in posts:
         render_post(post)
+    cleanup_stale_post_dirs(active_ids)
 
     if errors:
         print("Warnings:")

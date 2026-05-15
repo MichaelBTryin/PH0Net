@@ -1,8 +1,9 @@
 {
-  "last_synced_utc": "2026-05-15T09:08:58.630460+00:00",
+  "last_synced_utc": "2026-05-15T10:14:21.273827+00:00",
   "source": "api",
   "posts": [
     {
+      "id": "first-post",
       "title": "First post",
       "source_url": "https://blog.ph0.nexus/post/first-post",
       "summary": "I gotta test this",
