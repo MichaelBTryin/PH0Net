@@ -4,6 +4,7 @@ import datetime as dt
 import email.utils
 import html
 import json
+import os
 import re
 import secrets
 import shutil
@@ -41,6 +42,8 @@ def normalize_public_url(url: str) -> str:
 def normalize_post(post: dict) -> dict:
     post = dict(post)
     post["source_url"] = normalize_public_url(post.get("source_url", ""))
+    if post.get("id") and (not post["source_url"] or post["source_url"] == BLOG_PUBLIC_BASE):
+        post["source_url"] = f"{BLOG_PUBLIC_BASE}/post/{post['id']}"
 
     normalized_links = []
     for link in post.get("links", []):
@@ -363,20 +366,28 @@ def main():
     source = "cache"
     errors = []
 
-    try:
-        api_text = fetch_text(API_URL)
-        posts = parse_api(api_text)
-        source = "api"
-    except Exception as exc:
-        errors.append(f"api fetch failed: {exc}")
+    local_posts_path = os.getenv("NEXUS_BLOG_LOCAL_POSTS", "").strip()
+    if local_posts_path and Path(local_posts_path).exists():
+        raw = json.loads(Path(local_posts_path).read_text(encoding="utf-8-sig"))
+        items = raw.get("posts", raw) if isinstance(raw, dict) else raw
+        published = [p for p in items if isinstance(p, dict) and p.get("status") == "published"]
+        posts = parse_api(json.dumps({"posts": published}, ensure_ascii=True))
+        source = "local"
+    else:
         try:
-            rss_text = fetch_text(RSS_URL)
-            posts = parse_rss(rss_text)
-            source = "rss"
-        except Exception as rss_exc:
-            errors.append(f"rss fetch failed: {rss_exc}")
-            posts = load_cached_posts()
-            source = "cache"
+            api_text = fetch_text(API_URL)
+            posts = parse_api(api_text)
+            source = "api"
+        except Exception as exc:
+            errors.append(f"api fetch failed: {exc}")
+            try:
+                rss_text = fetch_text(RSS_URL)
+                posts = parse_rss(rss_text)
+                source = "rss"
+            except Exception as rss_exc:
+                errors.append(f"rss fetch failed: {rss_exc}")
+                posts = load_cached_posts()
+                source = "cache"
 
     taken_ids: set[str] = set()
     dedup: dict[str, dict] = {}
@@ -391,7 +402,7 @@ def main():
         taken_ids.add(segment)
     posts = list(dedup.values())[:MAX_POSTS]
 
-    if source in {"api", "rss"} and posts:
+    if source in {"api", "rss", "local"} and posts:
         save_cache(posts, source)
 
     last_synced = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")

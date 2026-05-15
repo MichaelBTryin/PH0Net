@@ -1,11 +1,11 @@
 {
-  "last_synced_utc": "2026-05-15T10:14:21.273827+00:00",
-  "source": "api",
+  "last_synced_utc": "2026-05-15T10:15:30.366599+00:00",
+  "source": "local",
   "posts": [
     {
-      "id": "first-post",
+      "id": "uBK6wTJ8jP8",
       "title": "First post",
-      "source_url": "https://blog.ph0.nexus/post/first-post",
+      "source_url": "https://blog.ph0.nexus/post/uBK6wTJ8jP8",
       "summary": "I gotta test this",
       "published_at": "2026-05-14T13:15:33.024784+00:00",
       "slug": "first-post",
