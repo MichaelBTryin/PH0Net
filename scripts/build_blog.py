@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 import base64
 import datetime as dt
 import email.utils
@@ -106,6 +106,16 @@ def public_post_id(post: dict) -> str:
     title = str(post.get("title", "Untitled"))
     ts = str(post.get("created_at") or post.get("published_at") or dt.datetime.now(dt.timezone.utc).isoformat())
     return generate_public_id(title, set(), ts)
+
+
+def post_path_segment(post: dict) -> str:
+    post_id = public_post_id(post)
+    published_raw = str(post.get("published_at") or post.get("created_at") or "")
+    try:
+        published_dt = dt.datetime.fromisoformat(published_raw.replace("Z", "+00:00"))
+    except Exception:
+        published_dt = dt.datetime.now(dt.timezone.utc)
+    return f"{published_dt:%Y/%m/%y-%m-%d}/{post_id}"
 
 
 def fetch_text(url: str, timeout: int = 15) -> str:
@@ -219,7 +229,7 @@ def render_blog_index(posts, source: str, last_synced: str):
         <h3 class="card-title">{html.escape(post['title'])}</h3>
         <p class="card-description">{html.escape(post.get('summary', ''))}</p>
         <p class="section-subtitle">Published: {fmt_date(post.get('published_at', ''))}</p>
-        <a class="card-link" href="./{html.escape(public_post_id(post))}/index.html">
+        <a class="card-link" href="./{html.escape(post_path_segment(post))}/index.html">
           <span>Read Post</span>
           <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
@@ -289,18 +299,19 @@ def render_blog_index(posts, source: str, last_synced: str):
     (BLOG_DIR / "index.html").write_text(html_text, encoding="utf-8")
 
 
-def cleanup_stale_post_dirs(active_ids: set[str]) -> None:
-    if not BLOG_DIR.exists():
-        return
-    for child in BLOG_DIR.iterdir():
-        if not child.is_dir() or child.name == "data":
+def cleanup_stale_post_dirs(active_paths: set[str]) -> None:
+    BLOG_DIR.mkdir(parents=True, exist_ok=True)
+    protected = {"data"}
+    for index_file in BLOG_DIR.rglob("index.html"):
+        rel = index_file.parent.relative_to(BLOG_DIR).as_posix()
+        if rel in protected:
             continue
-        if child.name not in active_ids:
-            shutil.rmtree(child, ignore_errors=True)
+        if rel not in active_paths:
+            shutil.rmtree(index_file.parent, ignore_errors=True)
 
 
 def render_post(post):
-    segment = public_post_id(post)
+    segment = post_path_segment(post)
     post_dir = BLOG_DIR / segment
     post_dir.mkdir(parents=True, exist_ok=True)
     canonical = f"{CANONICAL_BASE}/{segment}/"
@@ -340,17 +351,17 @@ def render_post(post):
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../static/css/cyberpunk.css">
+  <link rel="stylesheet" href="../../../../static/css/cyberpunk.css">
 </head>
 <body>
   <header class="site-header">
     <nav class="navbar">
-      <a href="../../index.html" class="brand-link">
-        <img src="../../static/images/PH0LogoV7 Clear MAIN.png" alt="PH0Net" class="brand-logo">
+      <a href="../../../../index.html" class="brand-link">
+        <img src="../../../../static/images/PH0LogoV7 Clear MAIN.png" alt="PH0Net" class="brand-logo">
         <span class="brand-text">PH0NET</span>
       </a>
       <ul class="nav-links">
-        <li><a href="../index.html" class="nav-link active">Blog</a></li>
+        <li><a href="../../../index.html" class="nav-link active">Blog</a></li>
       </ul>
     </nav>
   </header>
@@ -426,7 +437,7 @@ def main():
 
     last_synced = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
     render_blog_index(posts, source, last_synced)
-    active_ids = {public_post_id(post) for post in posts}
+    active_ids = {post_path_segment(post) for post in posts}
     for post in posts:
         render_post(post)
     cleanup_stale_post_dirs(active_ids)
@@ -440,3 +451,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
