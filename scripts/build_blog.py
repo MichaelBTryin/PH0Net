@@ -2,11 +2,11 @@
 import base64
 import datetime as dt
 import email.utils
+import hashlib
 import html
 import json
 import os
 import re
-import secrets
 import shutil
 import urllib.error
 import urllib.request
@@ -72,24 +72,40 @@ def _is_public_post_id(value: str) -> bool:
     return bool(value) and len(value) == YOUTUBE_ID_LENGTH and re.fullmatch(r"[A-Za-z0-9_-]{11}", value)
 
 
-def _generate_public_id(taken: set[str]) -> str:
-    for _ in range(128):
-        raw = secrets.token_bytes(8)
-        candidate = base64.urlsafe_b64encode(raw).decode("ascii").rstrip("=")[:YOUTUBE_ID_LENGTH]
-        if len(candidate) == YOUTUBE_ID_LENGTH and candidate not in taken:
+def _timestamp_ms(iso_value: str) -> int:
+    try:
+        parsed = dt.datetime.fromisoformat(iso_value.replace("Z", "+00:00"))
+        return int(parsed.timestamp() * 1000)
+    except Exception:
+        return int(dt.datetime.now(dt.timezone.utc).timestamp() * 1000)
+
+
+def _id_from_seed(seed: str) -> str:
+    digest = hashlib.sha256(seed.encode("utf-8")).digest()
+    encoded = base64.urlsafe_b64encode(digest[:8]).decode("ascii").rstrip("=")
+    return encoded[:YOUTUBE_ID_LENGTH]
+
+
+def generate_public_id(title: str, taken: set[str], timestamp_iso: str) -> str:
+    """Derive id from timestamp + title; bump timestamp on rare collisions."""
+    title_norm = title.strip().lower()
+    base_ms = _timestamp_ms(timestamp_iso)
+    for offset in range(128):
+        seed = f"{base_ms + offset}:{title_norm}"
+        candidate = _id_from_seed(seed)
+        if _is_public_post_id(candidate) and candidate not in taken:
             return candidate
     raise RuntimeError("Could not allocate a unique public post id")
 
 
 def public_post_id(post: dict) -> str:
-    """Stable mirror path segment (YouTube-style id from Nexus API)."""
+    """Stable mirror path segment from seeded Nexus post id."""
     value = str(post.get("id", "")).strip()
     if _is_public_post_id(value):
         return value
-    legacy_slug = str(post.get("slug", "")).strip()
-    if legacy_slug:
-        return slugify(legacy_slug)
-    return slugify(str(post.get("title", "post")))
+    title = str(post.get("title", "Untitled"))
+    ts = str(post.get("created_at") or post.get("published_at") or dt.datetime.now(dt.timezone.utc).isoformat())
+    return generate_public_id(title, set(), ts)
 
 
 def fetch_text(url: str, timeout: int = 15) -> str:
@@ -121,15 +137,15 @@ def parse_rss(xml_text: str):
         desc = item.findtext("description") or item.findtext("{http://purl.org/rss/1.0/modules/content/}encoded") or ""
         pub = item.findtext("pubDate") or ""
         summary = strip_html(desc)[:240]
-        slug = slugify(title)
+        published_at = parse_rfc2822_date(pub) if pub else dt.datetime.now(dt.timezone.utc).isoformat()
         posts.append(
             {
                 "id": "",
                 "title": title,
                 "source_url": link,
                 "summary": summary,
-                "published_at": parse_rfc2822_date(pub) if pub else dt.datetime.now(dt.timezone.utc).isoformat(),
-                "slug": slug,
+                "published_at": published_at,
+                "created_at": published_at,
                 "content_html": desc.strip(),
                 "links": [],
                 "video_embed_url": "",
@@ -144,12 +160,12 @@ def parse_api(json_text: str):
     posts = []
     for item in items[:MAX_POSTS]:
         title = str(item.get("title", "Untitled")).strip()
-        slug = str(item.get("slug") or slugify(title))
         post_id = str(item.get("id") or "").strip()
         source_url = str(item.get("url") or item.get("source_url") or "").strip()
         summary = strip_html(str(item.get("summary") or item.get("excerpt") or ""))[:240]
         content_html = str(item.get("content_html") or item.get("content") or "")
         published_at = str(item.get("published_at") or item.get("published") or dt.datetime.now(dt.timezone.utc).isoformat())
+        created_at = str(item.get("created_at") or published_at)
         posts.append(
             {
                 "id": post_id,
@@ -157,7 +173,7 @@ def parse_api(json_text: str):
                 "source_url": source_url,
                 "summary": summary,
                 "published_at": published_at,
-                "slug": slug,
+                "created_at": created_at,
                 "content_html": content_html,
                 "links": item.get("links") or [],
                 "video_embed_url": item.get("video_embed_url") or item.get("video_url") or "",
@@ -393,13 +409,16 @@ def main():
     dedup: dict[str, dict] = {}
     for post in posts:
         normalized = normalize_post(post)
-        segment = public_post_id(normalized)
-        if not _is_public_post_id(str(normalized.get("id", "")).strip()):
-            if not segment or segment in taken_ids:
-                segment = _generate_public_id(taken_ids)
-            normalized["id"] = segment
-        dedup[segment] = normalized
-        taken_ids.add(segment)
+        title = str(normalized.get("title", "Untitled"))
+        timestamp_iso = str(
+            normalized.get("created_at") or normalized.get("published_at") or dt.datetime.now(dt.timezone.utc).isoformat()
+        )
+        post_id = str(normalized.get("id", "")).strip()
+        if not _is_public_post_id(post_id) or post_id in taken_ids:
+            post_id = generate_public_id(title, taken_ids, timestamp_iso)
+        normalized["id"] = post_id
+        dedup[post_id] = normalized
+        taken_ids.add(post_id)
     posts = list(dedup.values())[:MAX_POSTS]
 
     if source in {"api", "rss", "local"} and posts:
