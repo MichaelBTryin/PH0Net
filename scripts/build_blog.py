@@ -215,9 +215,9 @@ def save_cache(posts, source: str):
 def fmt_date(iso_value: str) -> str:
     try:
         parsed = dt.datetime.fromisoformat(iso_value.replace("Z", "+00:00"))
-        return parsed.strftime("%Y-%m-%d")
+        return parsed.astimezone(dt.timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
     except Exception:
-        return "Unknown date"
+        return "Unknown date/time"
 
 
 def render_blog_index(posts, source: str, last_synced: str):
@@ -380,6 +380,10 @@ def render_post(post):
       </a>
       <input type="checkbox" id="mobile-menu" class="mobile-menu-toggle">
       <ul class="nav-links">
+        <li><a href="../../../../../index.html" class="nav-link">Home</a></li>
+        <li><a href="../../../../../projects.html" class="nav-link">Projects</a></li>
+        <li><a href="../../../../../about.html" class="nav-link">About</a></li>
+        <li><a href="../../../../../contact.html" class="nav-link">Contact</a></li>
         <li><a href="../../../../index.html" class="nav-link active">Blog</a></li>
       </ul>
       <label for="mobile-menu" class="mobile-toggle">
