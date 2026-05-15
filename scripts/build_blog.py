@@ -327,10 +327,11 @@ def render_post(post):
         extra_links.append(f'<li><a class="card-link" href="{href}" target="_blank" rel="noopener noreferrer">{label}</a></li>')
 
     video_embed = ""
-    if post.get("video_embed_url"):
+    video_url = str(post.get("video_embed_url") or "").strip()
+    if video_url and (video_url.lower().startswith("http://") or video_url.lower().startswith("https://")):
         video_embed = f"""
       <div style="margin-top:1rem; position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:8px; border:1px solid rgba(255,255,255,0.1);">
-        <iframe src="{html.escape(post['video_embed_url'])}" title="Embedded video" allowfullscreen
+        <iframe src="{html.escape(video_url)}" title="Embedded video" allowfullscreen
           style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"></iframe>
       </div>"""
 
