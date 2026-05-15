@@ -13,9 +13,46 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 BLOG_DIR = REPO_ROOT / "blog"
 CACHE_PATH = BLOG_DIR / "data" / "posts-cache.json"
 CANONICAL_BASE = "https://mbt.ph0.nexus/blog"
+BLOG_PUBLIC_BASE = "https://blog.ph0.nexus"
 RSS_URL = "https://blog.ph0.nexus/rss.xml"
 API_URL = "https://blog.ph0.nexus/api/posts.json"
 MAX_POSTS = 25
+
+
+def normalize_public_url(url: str) -> str:
+    """Map dev/local blog URLs to the public blog host."""
+    value = (url or "").strip()
+    if not value:
+        return BLOG_PUBLIC_BASE
+
+    value = re.sub(
+        r"^https?://(?:localhost|127\.0\.0\.1)(?::\d+)?/",
+        f"{BLOG_PUBLIC_BASE}/",
+        value,
+        flags=re.IGNORECASE,
+    )
+    return value
+
+
+def normalize_post(post: dict) -> dict:
+    post = dict(post)
+    post["source_url"] = normalize_public_url(post.get("source_url", ""))
+
+    normalized_links = []
+    for link in post.get("links", []):
+        if isinstance(link, dict):
+            normalized_links.append(
+                {
+                    "label": str(link.get("label") or "Related link"),
+                    "url": normalize_public_url(str(link.get("url") or "")),
+                }
+            )
+        else:
+            normalized_links.append(
+                {"label": "Related link", "url": normalize_public_url(str(link))}
+            )
+    post["links"] = normalized_links
+    return post
 
 
 def slugify(text: str) -> str:
@@ -132,7 +169,7 @@ def render_blog_index(posts, source: str, last_synced: str):
         <h3 class="card-title">{html.escape(post['title'])}</h3>
         <p class="card-description">{html.escape(post.get('summary', ''))}</p>
         <p class="section-subtitle">Published: {fmt_date(post.get('published_at', ''))}</p>
-        <a class="card-link" href="./{html.escape(post['slug'])}/">
+        <a class="card-link" href="./{html.escape(post['slug'])}/index.html">
           <span>Read Post</span>
           <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
@@ -266,7 +303,7 @@ def render_post(post):
       {video_embed}
       {links_html}
       <p style="margin-top: 1rem;">
-        <a class="card-link" href="{html.escape(post.get('source_url', 'https://blog.ph0.nexus'))}" target="_blank" rel="noopener noreferrer">
+        <a class="card-link" href="{html.escape(post.get('source_url', BLOG_PUBLIC_BASE))}" target="_blank" rel="noopener noreferrer">
           <span>View Original on blog.ph0.nexus</span>
           <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
@@ -301,7 +338,7 @@ def main():
 
     dedup = {}
     for post in posts:
-        dedup[post["slug"]] = post
+        dedup[post["slug"]] = normalize_post(post)
     posts = list(dedup.values())[:MAX_POSTS]
 
     if source in {"api", "rss"} and posts:
