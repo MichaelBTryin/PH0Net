@@ -264,7 +264,7 @@ def render_blog_index(posts, source: str, last_synced: str):
         <img src="../static/images/PH0LogoV7 Clear MAIN.png" alt="PH0Net" class="brand-logo">
         <span class="brand-text">PH0NET</span>
       </a>
-      <ul class="nav-links">
+      <input type="checkbox" id="mobile-menu" class="mobile-menu-toggle">`r`n      <ul class="nav-links">
         <li><a href="../index.html" class="nav-link">Home</a></li>
         <li><a href="../projects.html" class="nav-link">Projects</a></li>
         <li><a href="../about.html" class="nav-link">About</a></li>
@@ -361,7 +361,7 @@ def render_post(post):
         <img src="../../../../../static/images/PH0LogoV7 Clear MAIN.png" alt="PH0Net" class="brand-logo">
         <span class="brand-text">PH0NET</span>
       </a>
-      <ul class="nav-links">
+      <input type="checkbox" id="mobile-menu" class="mobile-menu-toggle">`r`n      <ul class="nav-links">
         <li><a href="../../../../index.html" class="nav-link active">Blog</a></li>
       </ul>
     </nav>
@@ -452,6 +452,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
