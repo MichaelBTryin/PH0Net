@@ -283,7 +283,7 @@ def render_blog_index(posts, source: str, last_synced: str):
             f"""
       <article class="project-card">
         <h3 class="card-title">{html.escape(post['title'])}</h3>
-        <div class="card-description">{preview_html}</div>
+        <div class="card-description blog-preview">{preview_html}</div>
         <p class="section-subtitle">Published: {fmt_date(post.get('published_at', ''))}</p>
         <a class="card-link" href="./{html.escape(post_path_segment(post))}/index.html">
           <span>Read Post</span>
