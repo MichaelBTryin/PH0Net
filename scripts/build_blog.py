@@ -11,6 +11,7 @@ import shutil
 import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
+from html.parser import HTMLParser
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -137,6 +138,58 @@ def strip_html(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
+ALLOWED_TAGS = {
+    "p", "br", "a", "ul", "ol", "li", "strong", "em", "b", "i", "u", "code", "pre",
+    "blockquote", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "span", "div"
+}
+ALLOWED_ATTRS = {"a": {"href", "title", "target", "rel"}}
+
+
+class SafeHTMLSanitizer(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag not in ALLOWED_TAGS:
+            return
+        out_attrs = []
+        for k, v in attrs:
+            if k.lower().startswith("on"):
+                continue
+            if k not in ALLOWED_ATTRS.get(tag, set()):
+                continue
+            if tag == "a" and k == "href":
+                href = (v or "").strip().lower()
+                if not (href.startswith("http://") or href.startswith("https://") or href.startswith("mailto:") or href.startswith("/") or href.startswith("#")):
+                    continue
+            out_attrs.append(f' {k}="{html.escape(v or "", quote=True)}"')
+        self.parts.append(f"<{tag}{''.join(out_attrs)}>")
+
+    def handle_endtag(self, tag):
+        if tag in ALLOWED_TAGS and tag not in {"br", "hr"}:
+            self.parts.append(f"</{tag}>")
+
+    def handle_data(self, data):
+        self.parts.append(html.escape(data or ""))
+
+    def handle_entityref(self, name):
+        self.parts.append(f"&{name};")
+
+    def handle_charref(self, name):
+        self.parts.append(f"&#{name};")
+
+
+def sanitize_html(content: str) -> str:
+    raw = (content or "").strip()
+    if not raw:
+        return ""
+    parser = SafeHTMLSanitizer()
+    parser.feed(raw)
+    parser.close()
+    return "".join(parser.parts)
+
+
 def parse_rss(xml_text: str):
     root = ET.fromstring(xml_text)
     items = root.findall(".//item")
@@ -223,11 +276,14 @@ def fmt_date(iso_value: str) -> str:
 def render_blog_index(posts, source: str, last_synced: str):
     cards = []
     for post in posts:
+        preview_html = sanitize_html(post.get("content_html") or "")
+        if not preview_html:
+            preview_html = f"<p>{html.escape(post.get('summary', ''))}</p>"
         cards.append(
             f"""
       <article class="project-card">
         <h3 class="card-title">{html.escape(post['title'])}</h3>
-        <p class="card-description">{html.escape(post.get('summary', ''))}</p>
+        <div class="card-description">{preview_html}</div>
         <p class="section-subtitle">Published: {fmt_date(post.get('published_at', ''))}</p>
         <a class="card-link" href="./{html.escape(post_path_segment(post))}/index.html">
           <span>Read Post</span>
@@ -332,7 +388,7 @@ def render_post(post):
     post_dir = BLOG_DIR / segment
     post_dir.mkdir(parents=True, exist_ok=True)
     canonical = f"{CANONICAL_BASE}/{segment}/"
-    body_html = post.get("content_html") or f"<p>{html.escape(post.get('summary', ''))}</p>"
+    body_html = sanitize_html(post.get("content_html") or "") or f"<p>{html.escape(post.get('summary', ''))}</p>"
     extra_links = []
     for link in post.get("links", []):
         if isinstance(link, dict):
